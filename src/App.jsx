@@ -1,236 +1,557 @@
-import React, { useState } from "react";
-import { motion } from "framer-motion";
+import { useState } from "react";
+import Campaigns from "./components/campaining";
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  NavLink,
+  Navigate,
+} from "react-router-dom";
+
 import {
   LayoutDashboard,
-  Users,
+  Megaphone,
   Phone,
-  Activity,
   BarChart3,
-  Upload,
-  PlayCircle,
-  AlertCircle,
-  TrendingUp,
+  Settings,
+  Bell,
+  Search,
+  Menu,
+  X,
 } from "lucide-react";
 
-const menuItems = [
-  { name: "Dashboard", icon: LayoutDashboard },
-  { name: "Voter Upload", icon: Upload },
-  { name: "Campaign Control", icon: PlayCircle },
-  { name: "Call Analytics", icon: Phone },
-  { name: "Live Monitoring", icon: Activity },
-  { name: "Reports", icon: BarChart3 },
+import {
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+  Tooltip,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  AreaChart,
+  Area,
+  LineChart,
+  Line,
+} from "recharts";
+
+import { motion } from "framer-motion";
+import toast, { Toaster } from "react-hot-toast";
+
+const sentimentData = [
+  { name: "Supporters", value: 65 },
+  { name: "Neutral", value: 20 },
+  { name: "Opposed", value: 15 },
 ];
 
-const stats = [
+const barData = [
+  { name: "Jobs", value: 90 },
+  { name: "Roads", value: 70 },
+  { name: "Water", value: 60 },
+  { name: "Education", value: 80 },
+  { name: "Healthcare", value: 50 },
+];
+
+const lineData = [
+  { day: "Mon", calls: 300 },
+  { day: "Tue", calls: 500 },
+  { day: "Wed", calls: 700 },
+  { day: "Thu", calls: 600 },
+  { day: "Fri", calls: 900 },
+  { day: "Sat", calls: 750 },
+];
+
+const calls = [
   {
-    title: "Total Voters",
-    value: "24,580",
-    change: "+12%",
-    icon: Users,
+    id: 1,
+    name: "Ravi Kumar",
+    phone: "+91 9876543210",
+    status: "Completed",
+    sentiment: "Supporter",
+    duration: "4m 20s",
+    date: "11 May 2026",
   },
   {
-    title: "Supporters %",
-    value: "68%",
-    change: "+8%",
-    icon: TrendingUp,
+    id: 2,
+    name: "Priya Sharma",
+    phone: "+91 9123456780",
+    status: "Busy",
+    sentiment: "Neutral",
+    duration: "1m 10s",
+    date: "10 May 2026",
   },
   {
-    title: "Calls Completed",
-    value: "8,420",
-    change: "+21%",
-    icon: Phone,
-  },
-  {
-    title: "Pending Issues",
-    value: "132",
-    change: "-6%",
-    icon: AlertCircle,
+    id: 3,
+    name: "Amit Verma",
+    phone: "+91 9988776655",
+    status: "Completed",
+    sentiment: "Opposed",
+    duration: "3m 11s",
+    date: "09 May 2026",
   },
 ];
 
-const issues = [
-  { name: "Roads", percent: 78 },
-  { name: "Water Supply", percent: 64 },
-  { name: "Jobs", percent: 59 },
-  { name: "Electricity", percent: 48 },
-];
+const COLORS = ["#7C3AED", "#06B6D4", "#F43F5E"];
 
-const liveActivities = [
-  "Calling voter in Vijayawada...",
-  "Message delivered successfully",
-  "Supporter identified: Positive",
-  "Ward 14 campaign started",
-  "Survey report updated",
-];
-
-export default function App() {
-  const [activeTab, setActiveTab] = useState("Dashboard");
+function Sidebar({ open, setOpen }) {
+  const links = [
+    {
+      name: "Dashboard",
+      path: "/dashboard",
+      icon: <LayoutDashboard size={20} />,
+    },
+    {
+      name: "Campaigns",
+      path: "/campaigns",
+      icon: <Megaphone size={20} />,
+    },
+    {
+      name: "Calls",
+      path: "/calls",
+      icon: <Phone size={20} />,
+    },
+    {
+      name: "Analytics",
+      path: "/analytics",
+      icon: <BarChart3 size={20} />,
+    },
+    {
+      name: "Settings",
+      path: "/settings",
+      icon: <Settings size={20} />,
+    },
+  ];
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white flex">
-      {/* Sidebar */}
-      <div className="w-72 bg-slate-900 border-r border-slate-800 p-6">
-        <h1 className="text-2xl font-bold mb-8">Election Commission Agent</h1>
+    <>
+      {open && (
+        <div
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          onClick={() => setOpen(false)}
+        />
+      )}
 
-        <div className="space-y-3">
-          {menuItems.map((item) => {
-            const Icon = item.icon;
-            const active = activeTab === item.name;
+      <div
+        className={`fixed lg:static z-50 top-0 left-0 h-screen w-72 bg-white/10 backdrop-blur-lg border-r border-white/10 p-5 transition-all duration-300 ${
+          open ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+        }`}
+      >
+        <div className="flex justify-between items-center mb-10">
+          <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
+            AI Agent
+          </h1>
 
-            return (
-              <button
-                key={item.name}
-                onClick={() => setActiveTab(item.name)}
-                className={`w-full flex items-center gap-3 p-4 rounded-2xl transition-all ${
-                  active
-                    ? "bg-blue-600 shadow-lg"
-                    : "hover:bg-slate-800"
-                }`}
-              >
-                <Icon size={20} />
-                <span className="font-medium">{item.name}</span>
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Main */}
-      <div className="flex-1 p-8 overflow-auto">
-        <div className="flex justify-between items-center mb-8">
-          <div>
-            <h2 className="text-3xl font-bold">Admin Dashboard</h2>
-            <p className="text-slate-400 mt-1">
-              Campaign monitoring, analytics and voter intelligence
-            </p>
-          </div>
-
-          <button className="bg-blue-600 px-6 py-3 rounded-2xl font-semibold hover:scale-105 transition">
-            Start Campaign
+          <button
+            className="lg:hidden"
+            onClick={() => setOpen(false)}
+          >
+            <X />
           </button>
         </div>
 
-        {/* Dashboard */}
-        {activeTab === "Dashboard" && (
-          <div className="space-y-8">
-            {/* Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
-              {stats.map((item, index) => {
-                const Icon = item.icon;
-                return (
-                  <motion.div
-                    key={item.title}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.1 }}
-                    className="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-lg"
-                  >
-                    <div className="flex justify-between items-center mb-4">
-                      <h3 className="text-slate-400">{item.title}</h3>
-                      <Icon size={20} />
-                    </div>
-                    <p className="text-3xl font-bold">{item.value}</p>
-                    <p className="text-sm text-green-400 mt-2">{item.change}</p>
-                  </motion.div>
-                );
-              })}
-            </div>
+        <div className="space-y-3">
+          {links.map((link) => (
+            <NavLink
+              key={link.name}
+              to={link.path}
+              className={({ isActive }) =>
+                `flex items-center gap-3 p-4 rounded-2xl transition-all duration-300 ${
+                  isActive
+                    ? "bg-gradient-to-r from-purple-600 to-cyan-500 shadow-xl"
+                    : "hover:bg-white/10"
+                }`
+              }
+            >
+              {link.icon}
+              {link.name}
+            </NavLink>
+          ))}
+        </div>
+      </div>
+    </>
+  );
+}
 
-            {/* Supporters + Issues */}
-            <div className="grid lg:grid-cols-2 gap-6">
-              <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6">
-                <h3 className="text-xl font-semibold mb-4">Supporters Breakdown</h3>
-                <div className="space-y-4">
-                  <div>
-                    <p className="mb-2">Supporters: 68%</p>
-                    <div className="w-full bg-slate-800 rounded-full h-3">
-                      <div className="bg-blue-500 h-3 rounded-full w-[68%]" />
-                    </div>
-                  </div>
-                  <div>
-                    <p className="mb-2">Undecided: 22%</p>
-                    <div className="w-full bg-slate-800 rounded-full h-3">
-                      <div className="bg-yellow-500 h-3 rounded-full w-[22%]" />
-                    </div>
-                  </div>
-                  <div>
-                    <p className="mb-2">Opposition: 10%</p>
-                    <div className="w-full bg-slate-800 rounded-full h-3">
-                      <div className="bg-red-500 h-3 rounded-full w-[10%]" />
-                    </div>
-                  </div>
-                </div>
-              </div>
+function Topbar({ setOpen }) {
+  return (
+    <div className="flex justify-between items-center p-5 border-b border-white/10 bg-white/5 backdrop-blur-lg">
+      <div className="flex items-center gap-4">
+        <button
+          className="lg:hidden"
+          onClick={() => setOpen(true)}
+        >
+          <Menu />
+        </button>
 
-              <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6">
-                <h3 className="text-xl font-semibold mb-4">Issues Breakdown</h3>
-                <div className="space-y-4">
-                  {issues.map((issue) => (
-                    <div key={issue.name}>
-                      <div className="flex justify-between mb-2">
-                        <span>{issue.name}</span>
-                        <span>{issue.percent}%</span>
-                      </div>
-                      <div className="w-full bg-slate-800 rounded-full h-2">
-                        <div
-                          className="bg-cyan-400 h-2 rounded-full"
-                          style={{ width: `${issue.percent}%` }}
-                        />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
+        <div className="hidden md:flex items-center bg-white/10 px-4 py-2 rounded-2xl w-80">
+          <Search size={18} />
+          <input
+            type="text"
+            placeholder="Search campaigns..."
+            className="bg-transparent outline-none ml-3 w-full"
+          />
+        </div>
+      </div>
+
+      <div className="flex items-center gap-5">
+        <div className="relative">
+          <Bell />
+          <span className="absolute -top-1 -right-1 w-2 h-2 bg-pink-500 rounded-full"></span>
+        </div>
+
+        <div className="flex items-center gap-3 bg-white/10 px-3 py-2 rounded-2xl">
+          <img
+            src="https://i.pravatar.cc/40"
+            alt=""
+            className="rounded-full"
+          />
+          <div>
+            <p className="text-sm font-semibold">Admin</p>
+            <p className="text-xs text-gray-400">
+              Campaign Manager
+            </p>
           </div>
-        )}
-
-        {/* Voter Upload */}
-        {activeTab === "Voter Upload" && (
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-8 max-w-2xl">
-            <h3 className="text-2xl font-bold mb-6">Upload Voter Data</h3>
-            <div className="border-2 border-dashed border-slate-700 rounded-2xl p-10 text-center">
-              <Upload className="mx-auto mb-4" size={40} />
-              <p>Drag and drop CSV / Excel file here</p>
-              <button className="mt-4 bg-blue-600 px-5 py-2 rounded-xl">
-                Browse File
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* Campaign Control */}
-        {activeTab === "Campaign Control" && (
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-8">
-            <h3 className="text-2xl font-bold mb-6">Campaign Control Panel</h3>
-            <div className="grid md:grid-cols-3 gap-4">
-              <button className="bg-green-600 p-4 rounded-2xl">Start Auto Calling</button>
-              <button className="bg-yellow-500 p-4 rounded-2xl">Pause Campaign</button>
-              <button className="bg-red-600 p-4 rounded-2xl">Stop Campaign</button>
-            </div>
-          </div>
-        )}
-
-        {/* Live Monitoring */}
-        {activeTab === "Live Monitoring" && (
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-8 max-w-2xl">
-            <h3 className="text-2xl font-bold mb-6">Live Monitoring</h3>
-            <div className="space-y-4">
-              {liveActivities.map((item, i) => (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: i * 0.1 }}
-                  className="bg-slate-800 p-4 rounded-2xl"
-                >
-                  {item}
-                </motion.div>
-              ))}
-            </div>
-          </div>
-        )}
+        </div>
       </div>
     </div>
+  );
+}
+
+function StatCard({ title, value, color }) {
+  return (
+    <motion.div
+      whileHover={{ scale: 1.03 }}
+      className={`bg-gradient-to-br ${color} p-[1px] rounded-3xl shadow-2xl`}
+    >
+      <div className="bg-[#111827]/90 rounded-3xl p-6 backdrop-blur-xl h-full">
+        <p className="text-gray-400">{title}</p>
+
+        <h1 className="text-4xl font-bold mt-3">{value}</h1>
+      </div>
+    </motion.div>
+  );
+}
+
+function Dashboard() {
+  return (
+    <div className="space-y-6">
+      <div className="grid md:grid-cols-3 gap-6">
+        <StatCard
+          title="Total Calls"
+          value="12,540"
+          color="from-purple-500 to-cyan-500"
+        />
+
+        <StatCard
+          title="Active Campaigns"
+          value="18"
+          color="from-cyan-500 to-blue-500"
+        />
+
+        <StatCard
+          title="Positive Sentiment"
+          value="65%"
+          color="from-pink-500 to-purple-500"
+        />
+      </div>
+
+      <div className="grid lg:grid-cols-2 gap-6">
+        <div className="bg-white/10 backdrop-blur-lg border border-white/10 rounded-3xl p-6">
+          <h2 className="text-xl font-bold mb-6">
+            Live Sentiment Analysis
+          </h2>
+
+          <ResponsiveContainer width="100%" height={320}>
+            <PieChart>
+              <Pie
+                data={sentimentData}
+                dataKey="value"
+                outerRadius={110}
+                label
+              >
+                {sentimentData.map((entry, index) => (
+                  <Cell
+                    key={index}
+                    fill={COLORS[index]}
+                  />
+                ))}
+              </Pie>
+
+              <Tooltip />
+            </PieChart>
+          </ResponsiveContainer>
+        </div>
+
+        <div className="bg-white/10 backdrop-blur-lg border border-white/10 rounded-3xl p-6">
+          <h2 className="text-xl font-bold mb-6">
+            Top Public Issues
+          </h2>
+
+          <ResponsiveContainer width="100%" height={320}>
+            <BarChart data={barData}>
+              <XAxis dataKey="name" stroke="#fff" />
+              <YAxis stroke="#fff" />
+              <Tooltip />
+
+              <Bar
+                dataKey="value"
+                fill="#7C3AED"
+                radius={[10, 10, 0, 0]}
+              />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+
+      <div className="bg-white/10 backdrop-blur-lg border border-white/10 rounded-3xl p-6 overflow-x-auto">
+        <h2 className="text-xl font-bold mb-6">
+          Recent Calls
+        </h2>
+
+        <table className="w-full">
+          <thead>
+            <tr className="border-b border-white/10 text-left">
+              <th className="p-4">Name</th>
+              <th className="p-4">Phone</th>
+              <th className="p-4">Status</th>
+              <th className="p-4">Sentiment</th>
+              <th className="p-4">Duration</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {calls.map((call) => (
+              <tr
+                key={call.id}
+                className="border-b border-white/5 hover:bg-white/5"
+              >
+                <td className="p-4">{call.name}</td>
+                <td className="p-4">{call.phone}</td>
+                <td className="p-4">{call.status}</td>
+                <td className="p-4">{call.sentiment}</td>
+                <td className="p-4">{call.duration}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+<Campaigns/>
+
+function Calls() {
+  const [search, setSearch] = useState("");
+
+  const filtered = calls.filter((call) =>
+    call.name.toLowerCase().includes(search.toLowerCase())
+  );
+
+  return (
+    <div className="bg-white/10 backdrop-blur-lg border border-white/10 rounded-3xl p-6">
+      <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-6">
+        <h1 className="text-2xl font-bold">
+          Call History
+        </h1>
+
+        <input
+          type="text"
+          placeholder="Search calls..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="bg-white/10 px-4 py-3 rounded-2xl outline-none"
+        />
+      </div>
+
+      <div className="overflow-x-auto">
+        <table className="w-full">
+          <thead>
+            <tr className="border-b border-white/10 text-left">
+              <th className="p-4">Name</th>
+              <th className="p-4">Phone</th>
+              <th className="p-4">Status</th>
+              <th className="p-4">Sentiment</th>
+              <th className="p-4">Date</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {filtered.map((call) => (
+              <tr
+                key={call.id}
+                className="border-b border-white/5 hover:bg-white/5"
+              >
+                <td className="p-4">{call.name}</td>
+                <td className="p-4">{call.phone}</td>
+                <td className="p-4">{call.status}</td>
+                <td className="p-4">{call.sentiment}</td>
+                <td className="p-4">{call.date}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+function Analytics() {
+  return (
+    <div className="space-y-6">
+      <div className="grid lg:grid-cols-2 gap-6">
+        <div className="bg-white/10 backdrop-blur-lg border border-white/10 rounded-3xl p-6">
+          <h2 className="text-xl font-bold mb-6">
+            Weekly Call Trends
+          </h2>
+
+          <ResponsiveContainer width="100%" height={300}>
+            <LineChart data={lineData}>
+              <XAxis dataKey="day" stroke="#fff" />
+              <YAxis stroke="#fff" />
+              <Tooltip />
+
+              <Line
+                type="monotone"
+                dataKey="calls"
+                stroke="#06B6D4"
+                strokeWidth={4}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+
+        <div className="bg-white/10 backdrop-blur-lg border border-white/10 rounded-3xl p-6">
+          <h2 className="text-xl font-bold mb-6">
+            Campaign Performance
+          </h2>
+
+          <ResponsiveContainer width="100%" height={300}>
+            <AreaChart data={lineData}>
+              <XAxis dataKey="day" stroke="#fff" />
+              <YAxis stroke="#fff" />
+              <Tooltip />
+
+              <Area
+                type="monotone"
+                dataKey="calls"
+                stroke="#7C3AED"
+                fill="#7C3AED"
+              />
+            </AreaChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+
+      <div className="grid md:grid-cols-3 gap-6">
+        <StatCard
+          title="Supporters"
+          value="65%"
+          color="from-purple-500 to-pink-500"
+        />
+
+        <StatCard
+          title="Neutral"
+          value="20%"
+          color="from-cyan-500 to-blue-500"
+        />
+
+        <StatCard
+          title="Opposed"
+          value="15%"
+          color="from-red-500 to-pink-500"
+        />
+      </div>
+    </div>
+  );
+}
+
+function SettingsPage() {
+  return (
+    <div className="bg-white/10 backdrop-blur-lg border border-white/10 rounded-3xl p-6">
+      <h1 className="text-2xl font-bold mb-6">
+        Settings
+      </h1>
+
+      <div className="space-y-5">
+        <div className="bg-white/10 p-5 rounded-2xl">
+          <h2 className="font-semibold mb-2">
+            Notification Settings
+          </h2>
+
+          <p className="text-gray-400">
+            Manage campaign alerts and updates.
+          </p>
+        </div>
+
+        <div className="bg-white/10 p-5 rounded-2xl">
+          <h2 className="font-semibold mb-2">
+            Theme Preferences
+          </h2>
+
+          <p className="text-gray-400">
+            Dark modern dashboard theme enabled.
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Layout() {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div className="flex bg-[#0F172A] text-white min-h-screen">
+      <Sidebar open={open} setOpen={setOpen} />
+
+      <div className="flex-1 lg:ml-0">
+        <Topbar setOpen={setOpen} />
+
+        <div className="p-6">
+          <Routes>
+            <Route
+              path="/dashboard"
+              element={<Dashboard />}
+            />
+
+            <Route
+              path="/campaigns"
+              element={<Campaigns />}
+            />
+
+            <Route path="/calls" element={<Calls />} />
+
+            <Route
+              path="/analytics"
+              element={<Analytics />}
+            />
+
+            <Route
+              path="/settings"
+              element={<SettingsPage />}
+            />
+
+            <Route
+              path="*"
+              element={<Navigate to="/dashboard" />}
+            />
+          </Routes>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function App() {
+  return (
+    <BrowserRouter>
+      <Toaster position="top-right" />
+
+      <div className="min-h-screen bg-gradient-to-br from-[#0F172A] via-[#111827] to-[#1E1B4B] text-white">
+        <Layout />
+      </div>
+    </BrowserRouter>
   );
 }
