@@ -3,12 +3,32 @@ import toast from "react-hot-toast";
 import { Upload } from "lucide-react";
 
 function Campaigns() {
+  const [campaignName, setCampaignName] = useState("");
+  const [description, setDescription] = useState("");
   const [fileName, setFileName] = useState("");
+  const [csvFile, setCsvFile] = useState(null);
   const [csvData, setCsvData] = useState([]);
-
+ 
   const handleStart = () => {
-    toast.success("Campaign Started Successfully");
-  };
+
+  if (!campaignName.trim()) {
+    toast.error("Campaign name is required");
+    return;
+  }
+
+  if (!description.trim()) {
+    toast.error("Campaign description is required");
+    return;
+  }
+
+  if (!csvFile) {
+    toast.error("Please upload CSV file");
+    return;
+  }
+
+  toast.success("Campaign Started Successfully");
+};
+
 
   const handleStop = () => {
     toast.error("Campaign Stopped");
@@ -26,6 +46,7 @@ function Campaigns() {
     }
 
     setFileName(file.name);
+    setCsvFile(file);
 
     const reader = new FileReader();
 
@@ -57,6 +78,10 @@ function Campaigns() {
           {/* Campaign Name */}
           <input
             type="text"
+            value={campaignName}
+            onChange={(e) =>
+              setCampaignName(e.target.value)
+            }
             placeholder="Campaign Name"
             className="w-full bg-white/10 p-4 rounded-2xl outline-none"
           />
@@ -64,10 +89,13 @@ function Campaigns() {
           {/* Description */}
           <textarea
             rows="5"
+            value={description}
+            onChange={(e) =>
+              setDescription(e.target.value)
+            }
             placeholder="Campaign Description"
             className="w-full bg-white/10 p-4 rounded-2xl outline-none"
-          />
-
+/>
           {/* CSV Upload */}
           <label className="border-2 border-dashed border-white/20 rounded-2xl p-10 text-center flex flex-col items-center justify-center cursor-pointer hover:bg-white/5 transition-all">
             

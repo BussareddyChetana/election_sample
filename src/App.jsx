@@ -18,6 +18,7 @@ import {
   Search,
   Menu,
   X,
+  Bot,
 } from "lucide-react";
 
 import {
@@ -37,7 +38,7 @@ import {
 } from "recharts";
 
 import { motion } from "framer-motion";
-import toast, { Toaster } from "react-hot-toast";
+import { Toaster } from "react-hot-toast";
 
 const sentimentData = [
   { name: "Supporters", value: 65 },
@@ -117,10 +118,16 @@ function Sidebar({ open, setOpen }) {
       icon: <BarChart3 size={20} />,
     },
     {
+      name: "AI Agent",
+      path: "/agent",
+      icon: <Bot size={20} />,
+   },
+    {
       name: "Settings",
       path: "/settings",
       icon: <Settings size={20} />,
     },
+   
   ];
 
   return (
@@ -340,14 +347,37 @@ function Dashboard() {
   );
 }
 
-<Campaigns/>
+
 
 function Calls() {
   const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] =
+  useState("All");
 
-  const filtered = calls.filter((call) =>
-    call.name.toLowerCase().includes(search.toLowerCase())
+  const [sentimentFilter, setSentimentFilter] =
+  useState("All");
+
+  
+  const filtered = calls.filter((call) => {
+
+  const matchesSearch = call.name
+    .toLowerCase()
+    .includes(search.toLowerCase());
+
+  const matchesStatus =
+    statusFilter === "All" ||
+    call.status === statusFilter;
+
+  const matchesSentiment =
+    sentimentFilter === "All" ||
+    call.sentiment === sentimentFilter;
+
+  return (
+    matchesSearch &&
+    matchesStatus &&
+    matchesSentiment
   );
+});
 
   return (
     <div className="bg-white/10 backdrop-blur-lg border border-white/10 rounded-3xl p-6">
@@ -364,6 +394,35 @@ function Calls() {
           className="bg-white/10 px-4 py-3 rounded-2xl outline-none"
         />
       </div>
+
+    <div className="flex gap-4 mb-6 flex-wrap">
+
+  <select
+    value={statusFilter}
+    onChange={(e) =>
+      setStatusFilter(e.target.value)
+    }
+    className="bg-white/10 px-4 py-3 rounded-2xl outline-none"
+  >
+    <option value="All">All Status</option>
+    <option value="Completed">Completed</option>
+    <option value="Busy">Busy</option>
+  </select>
+
+  <select
+    value={sentimentFilter}
+    onChange={(e) =>
+      setSentimentFilter(e.target.value)
+    }
+    className="bg-white/10 px-4 py-3 rounded-2xl outline-none"
+  >
+    <option value="All">All Sentiments</option>
+    <option value="Supporter">Supporter</option>
+    <option value="Neutral">Neutral</option>
+    <option value="Opposed">Opposed</option>
+  </select>
+
+     </div>
 
       <div className="overflow-x-auto">
         <table className="w-full">
@@ -467,6 +526,155 @@ function Analytics() {
   );
 }
 
+function AgentPage() {
+  const [transcript, setTranscript] = useState([
+    "AI: Hello sir, how are you?",
+  ]);
+
+  const messages = [
+    "User: I am good.",
+    "AI: Will you support our campaign?",
+    "User: Yes definitely.",
+    "AI: Thank you for supporting us.",
+  ];
+
+  const simulateMessage = () => {
+    setTranscript((prev) => {
+      if (prev.length >= 5) return prev;
+
+      return [...prev, messages[prev.length - 1]];
+    });
+  };
+
+  return (
+    <div className="space-y-6">
+
+      <div className="grid md:grid-cols-4 gap-6">
+
+        <StatCard
+          title="Agent Status"
+          value="Active"
+          color="from-green-500 to-emerald-500"
+        />
+
+        <StatCard
+          title="Calls Handled"
+          value="1240"
+          color="from-purple-500 to-cyan-500"
+        />
+
+        <StatCard
+          title="Success Rate"
+          value="89%"
+          color="from-pink-500 to-red-500"
+        />
+
+        <StatCard
+          title="AI Confidence"
+          value="92%"
+          color="from-cyan-500 to-blue-500"
+        />
+
+      </div>
+
+      <div className="grid lg:grid-cols-2 gap-6">
+
+        <div className="bg-white/10 backdrop-blur-lg border border-white/10 rounded-3xl p-6">
+
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-2xl font-bold">
+              Live Transcript
+            </h2>
+
+            <button
+              onClick={simulateMessage}
+              className="bg-gradient-to-r from-purple-600 to-cyan-500 px-5 py-2 rounded-2xl"
+            >
+              Simulate
+            </button>
+          </div>
+
+          <div className="space-y-4">
+
+            {transcript.map((msg, index) => (
+              <div
+                key={index}
+                className={`p-4 rounded-2xl ${
+                  msg.startsWith("AI")
+                    ? "bg-purple-500/20"
+                    : "bg-cyan-500/20"
+                }`}
+              >
+                {msg}
+              </div>
+            ))}
+
+          </div>
+        </div>
+
+        <div className="bg-white/10 backdrop-blur-lg border border-white/10 rounded-3xl p-6">
+
+          <h2 className="text-2xl font-bold mb-6">
+            Agent Monitoring
+          </h2>
+
+          <div className="space-y-5">
+
+            <div className="bg-white/10 p-5 rounded-2xl">
+              <p className="text-gray-400">
+                Current Call
+              </p>
+
+              <h3 className="text-xl font-bold mt-2">
+                Ravi Kumar
+              </h3>
+            </div>
+
+            <div className="bg-white/10 p-5 rounded-2xl">
+              <p className="text-gray-400">
+                Language
+              </p>
+
+              <h3 className="text-xl font-bold mt-2">
+                Telugu
+              </h3>
+            </div>
+
+            <div className="bg-white/10 p-5 rounded-2xl">
+              <p className="text-gray-400">
+                Sentiment
+              </p>
+
+              <h3 className="text-xl font-bold mt-2 text-green-400">
+                Supporter
+              </h3>
+            </div>
+
+            <div className="bg-white/10 p-5 rounded-2xl">
+              <p className="mb-4 text-gray-400">
+                Voice Activity
+              </p>
+
+              <div className="flex items-end gap-2 h-20">
+                <div className="w-3 bg-cyan-400 h-10 rounded animate-pulse"></div>
+                <div className="w-3 bg-purple-400 h-16 rounded animate-pulse"></div>
+                <div className="w-3 bg-pink-400 h-8 rounded animate-pulse"></div>
+                <div className="w-3 bg-cyan-400 h-20 rounded animate-pulse"></div>
+                <div className="w-3 bg-purple-400 h-12 rounded animate-pulse"></div>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+  );
+}
+
+
+
 function SettingsPage() {
   return (
     <div className="bg-white/10 backdrop-blur-lg border border-white/10 rounded-3xl p-6">
@@ -526,6 +734,10 @@ function Layout() {
             <Route
               path="/analytics"
               element={<Analytics />}
+            />
+            <Route
+              path="/agent"
+              element={<AgentPage />}
             />
 
             <Route
